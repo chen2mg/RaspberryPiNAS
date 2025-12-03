@@ -1,0 +1,84 @@
+
+services:
+  # -------------------------------------------------------------------------
+  # Service 1: Samba (SMB) - For Windows PC / Mac Access
+  # -------------------------------------------------------------------------
+  samba:
+    image: crazymax/samba:latest
+    container_name: nas_samba
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    volumes:
+      # Map the config file we just created
+      - "./samba_config.yml:/data/config.yml"
+      # Map your NAS drive to the path defined in config.yml
+      - "/mnt/nas:/samba/storage"
+    environment:
+      - "TZ=America/New_York"
+      - "SAMBA_LOG_LEVEL=2"
+      # Enable Windows Service Discovery
+      - "WSDD2_ENABLE=1"
+      - "WSDD2_NETBIOS_NAME=RaspberryPiNAS"
+
+  # -------------------------------------------------------------------------
+  # Service 2: MiniDLNA - For Smart TV Streaming
+  # -------------------------------------------------------------------------
+  minidlna:
+    image: vladgh/minidlna:latest
+    container_name: nas_minidlna
+    restart: unless-stopped
+    network_mode: host # REQUIRED for DLNA multicast to work with TV
+    volumes:
+      - "/mnt/nas/media:/media" # Maps host drive to where DLNA looks for media
+    environment:
+      - "MINIDLNA_MEDIA_DIR=V,/media" # V=Video only. Use A,P,V for Audio/Photo/Video
+      - "MINIDLNA_FRIENDLY_NAME=RaspberryPiMedia"
+
+  # # -------------------------------------------------------------------------
+  # # Service 3: NFS Server - For Amcrest IP Cameras
+  # # -------------------------------------------------------------------------
+  # nfs:
+  #   image: gists/nfs-server
+  #   container_name: nas_nfs
+  #   restart: unless-stopped
+  #   privileged: true # REQUIRED for NFS kernel modules
+  #   network_mode: host
+  #   volumes:
+  #     - "/mnt/nas:/data"
+  #   environment:
+  #     # Export /data to allow all IPs (for simplicity) or restrict to camera IP
+  #     # sync: safer for data, async: faster. Amcrest usually likes sync.
+  #     # no_root_squash/all_squash helps with permission issues on simple NAS setups
+  #     - "NFS_EXPORT_0=/data *(rw,sync,no_subtree_check,no_root_squash,fsid=0)"
+  #   cap_add:
+  #     - SYS_ADMIN
+  #     - SETPCAP
+
+
+  # -------------------------------------------------------------------------
+  # Service 4: FTP Server - Best fallback for Amcrest Cameras
+  # -------------------------------------------------------------------------
+  ftp:
+    image: garethflowers/ftp-server
+    container_name: nas_ftp
+    restart: unless-stopped
+    network_mode: host
+    # ----------------------------------------------------------------
+    # A. Load variables from the .env file
+    env_file:
+      - ./.env
+    # ----------------------------------------------------------------
+    environment:
+      # ----------------------------------------------------------------
+      # B. Reference the variables from the .env file
+      - FTP_USER=${FTP_USERNAME} 
+      - FTP_PASS=${FTP_PASSWORD}
+      # ----------------------------------------------------------------
+      - PASV_ADDRESS=192.168.0.160
+      # Connect FTP root to the data folder
+      - LOG_STDOUT=yes
+    volumes:
+      - "/mnt/nas/media:/home/vsftpd/amcrest"
