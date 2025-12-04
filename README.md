@@ -53,6 +53,15 @@ Replace the old UUID with the new one:
 UUID=NEW-UUID-HERE  /mnt/nas  ext4  defaults,auto,users,rw,nofail  0  0
 ```
 
+Mount it:
+
+```bash
+sudo mkdir -p /mnt/nas
+sudo mount -a
+systemctl daemon-reload
+sudo chmod -R 777 /mnt/nas
+```
+
 ### 2. Load Kernel Modules
 
 The NFS container needs kernel support. Run this on your Pi:
