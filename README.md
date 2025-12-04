@@ -59,6 +59,13 @@ Mount it:
 sudo mkdir -p /mnt/nas
 sudo mount -a
 systemctl daemon-reload
+```
+
+Create dirs:
+
+```
+sudo mkdir -p /mnt/nas/samba
+sudo mkdir -p /mnt/nas/media
 sudo chmod -R 777 /mnt/nas
 ```
 
@@ -77,16 +84,17 @@ To make this persistent, add `nfs` and `nfsd` to `/etc/modules`.
 
 ## How to Start
 
-1. Place `docker-compose.yml` in a folder (e.g., `~/nas`).
-2. Run the app:
+1. Run the app:
 
 ```bash
+cd RaspberryPiNAS
 make up
 ```
 
-or
+or:
 
 ```bash
+cd RaspberryPiNAS
 docker compose up -d
 ```
 
@@ -103,7 +111,7 @@ The `restart: unless-stopped` line in the YAML ensures these containers start au
 * **Username:** `pi`
 * **Password:** `raspberry` (or what you set in `docker-compose.yml`)
 
-Or set .env file
+Or set .env file (recommended):
 ```
 # .env file content
 FTP_USERNAME=pi
