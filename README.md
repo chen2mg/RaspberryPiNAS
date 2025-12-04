@@ -64,7 +64,6 @@ systemctl daemon-reload
 Create dirs:
 
 ```
-sudo mkdir -p /mnt/nas/samba
 sudo mkdir -p /mnt/nas/media
 sudo chmod -R 777 /mnt/nas
 ```
@@ -241,7 +240,6 @@ sudo chmod -R 777 /mnt/nas
 Make dirs:
 
 ```bash
-mkdir -p /mnt/nas/samba
 mkdir -p /mnt/nas/media
 sudo chmod -R 777 /mnt/nas
 ```
