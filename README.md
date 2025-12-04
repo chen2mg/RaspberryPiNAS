@@ -14,6 +14,45 @@ This setup runs **Samba (Windows)**, **MiniDLNA (TV)**, and **NFS (Cameras)** in
 
 Ensure you have added the drive to `/etc/fstab` and mounted it to `/mnt/nas` on your Pi host system.
 
+Find the new drive name (should be sda or sdb):
+
+```bash
+lsblk
+```
+
+Format it (⚠️ this erases everything):
+
+```bash
+sudo mkfs.ext4 /dev/sda1
+```
+
+If `/dev/sda1` doesn’t exist, create a partition first:
+
+```bash
+sudo fdisk /dev/sda
+```
+
+Find the drive's UUID.
+
+Get it:
+
+```bash
+sudo blkid
+# looking for something like /dev/sda1: UUID="54efc51a-274c-44d7-a0e2-50da701243b6" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="396c3357-01"
+```
+
+Edit fstab:
+
+```bash
+sudo vim /etc/fstab
+```
+
+Replace the old UUID with the new one:
+
+```
+UUID=NEW-UUID-HERE  /mnt/nas  ext4  defaults,auto,users,rw,nofail  0  0
+```
+
 ### 2. Load Kernel Modules
 
 The NFS container needs kernel support. Run this on your Pi:
